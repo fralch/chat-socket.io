@@ -1,7 +1,8 @@
 $(function(){
+    // Establece una conexión con el servidor a través de socket.io
     const socket = io();
 
-    //Obteniendo elementos del DOM desde el cliente
+    // Obtiene elementos del DOM utilizando selectores de jQuery
     const chatForm = $("#chat-form");
     const chatMessages = $("#chat-message");
     const chatBody = $("#chat-body");
@@ -11,22 +12,21 @@ $(function(){
     const usersBody = $("#users-body");
     let nick = "";
 
-    //Evemtos
-    //Enviando un mensaje
+    // Evento para enviar un mensaje al hacer submit en el formulario
     chatForm.submit(function(e){
         e.preventDefault();
 
-        //Obteniendo el mensaje del formulario
+        // Obtiene el mensaje del formulario
         const msg = chatMessages.val();
 
-        //Emitiendo un mensaje al servidor
+        // Emite un evento "chatMessage" al servidor con el mensaje
         socket.emit("chatMessage", msg);
 
-        //Limpiando el input
+        // Limpia el campo de entrada
         chatMessages.val("").focus();
     });
 
-    //Obteniendo el mensaje del servidor
+    // Escucha el evento "chatMessage" del servidor y agrega el mensaje al DOM
     socket.on("chatMessage", function(respuesta){
         chatBody.append(
             `<div class="card card-body mb-3">  
@@ -36,19 +36,21 @@ $(function(){
             );
     });
 
-    //Enviando un nombre de usuario
+    // Evento para enviar un nombre de usuario al hacer submit en el formulario
     nickForm.submit(function(e){
         e.preventDefault();
 
-        //Obteniendo el nombre de usuario
+        // Obtiene el nombre de usuario del formulario
          nick = nickName.val();
 
-        //Emitiendo el nombre de usuario al servidor
+        // Emite un evento "newUser" al servidor con el nombre de usuario
         socket.emit("newUser", nick, function(data){
             if(data){
+                // Oculta el formulario de ingreso de nombre de usuario y muestra el contenido del chat
                 $("#nick-wrap").hide();
                 $("#content-wrap").show();
             }else{
+                // Muestra un mensaje de error si el nombre de usuario ya existe
                 nickError.html(`
                     <div class="alert alert-danger">
                         Ese nombre de usuario ya existe
@@ -61,24 +63,30 @@ $(function(){
 
     });
 
-    //Obteniendo los usuarios del servidor
+    // Escucha el evento "NameNewusers" del servidor y actualiza la lista de usuarios en el DOM
     socket.on("NameNewusers", function(data){
         let html = "";
         let color = "";
         let salir = "";
 
+        // Recorre la lista de usuarios
         for(let i = 0; i < data.length; i++){
+           // Si el usuario actual es el mismo que el que está conectado
            if (data[i] == nick) {
+               // Establece un color de texto diferente para destacarlo
                color = "text-success";
+               // Agrega un enlace para salir
                salir = "<a href='/' >Salir</a>";
               }else{
                 color = "text-primary";
                 salir = "";
               }
+            // Agrega el usuario a la cadena de HTML
             html += `<p class="${color}">${data[i]} ${salir}</p>`;
 
         }
 
+        // Agrega la cadena de HTML a la lista de usuarios en el DOM
         usersBody.html(html);
     });
 
