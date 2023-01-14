@@ -9,7 +9,7 @@ const server = require("http").Server(app);
 const io = require("socket.io")(server);
 
 //requiriendo el archivo socket.js para que se ejecute la función que contiene y se le pasa el objeto io
-require("./socket")(io);
+require("./sockets")(io);
 
 //Archivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
